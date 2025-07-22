@@ -1,4 +1,4 @@
-<h1 align="center">🧠scheDulify – From Queues to Gantt Charts, Seamlessly !!</h1>
+  <h1 align="center">🧠scheDulify – From Queues to Gantt Charts, Seamlessly !!</h1>
 
 <p align="center">
   <img src="backend/images/kashishpic.png" width="120" />
@@ -35,17 +35,9 @@
 
 ## 📸 Screenshots
 
-<table>
-  <tr>
-    <td><img src="<img width="1896" height="856" alt="image" src="https://github.com/user-attachments/assets/b5e9687f-61a6-4f67-b2cc-2d64265adbad" />
-" width="300"/></td>
-    <td><img src="backend/images/CPU Scheduling_2.PNG" width="300"/></td>
-  </tr>
-  <tr>
-    <td><img src="backend/images/CPU Scheduling_3.png" width="300"/></td>
-    <td><img src="backend/images/CPU Scheduling_4.PNG" width="300"/></td>
-  </tr>
-</table>
+1. Main Home Page
+   <img width="1877" height="849" alt="image" src="https://github.com/user-attachments/assets/60dcbf68-c001-4233-ae05-63d0112c6d03" />
+
 
 ---
 
