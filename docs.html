@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="images\favicon\cpufavicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="images\favicon\cpufavicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+        integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+    <title>CPU Scheduling Algorithms • Documentation</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #111111;
+            --card-bg: #1a1a1a;
+            --accent-bg: #2a2a2a;
+            --primary-text: #ffffff;
+            --secondary-text: #b0b0b0;
+            --accent-text: #888888;
+            --primary-accent: #3b82f6;
+            --secondary-accent: #6366f1;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --border-color: #333333;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--primary-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--secondary-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-accent);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-accent);
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 4%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(10, 10, 10, 0.98);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        nav a {
+            font-size: 1.8rem;
+            color: var(--primary-text);
+            text-decoration: none;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(45deg, var(--primary-accent), var(--secondary-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links ul li a {
+            color: var(--secondary-text);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links ul li a:hover {
+            color: var(--primary-text);
+            background: var(--glass-bg);
+            transform: translateY(-2px);
+            -webkit-text-fill-color: var(--primary-text);
+            background-clip: unset;
+            -webkit-background-clip: unset;
+        }
+
+        .nav-links ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, var(--primary-accent), var(--secondary-accent));
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-links ul li a:hover::after {
+            width: 80%;
+        }
+
+        /* .nav-links ul li a.active {
+            color: var(--primary-accent);
+            background: var(--glass-bg);
+        } */
+
+        .mobile-menu {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--primary-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .close-icon {
+            font-size: 1.8rem;
+            color: var(--primary-text);
+            cursor: pointer;
+            display: none;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            z-index: 1001;
+        }
+
+        .nav-links.active .close-icon {
+            display: block;
+        }
+
+        .nav-links.active~#hamburger {
+            display: none;
+        }
+
+        /* Header Section */
+        .docs-header {
+            height: 60vh;
+            width: 100%;
+            padding: 10rem 4% 6rem;
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.9), rgba(59, 130, 246, 0.1));
+            text-align: center;
+            position: relative;
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .docs-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .docs-header h1 {
+            font-size: clamp(3rem, 5vw, 5rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-text), var(--primary-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .docs-header p {
+            font-size: 1.3rem;
+            color: var(--secondary-text);
+            max-width: 700px;
+            margin: 0 auto;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        /* Algorithm Cards Section */
+        .algorithms-section {
+            padding: 8rem 4%;
+            background: var(--secondary-bg);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-text);
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            font-size: 1.1rem;
+            color: var(--secondary-text);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .algorithms-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .algorithm-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            height: auto;
+            min-height: 280px;
+        }
+
+        .algorithm-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-accent), var(--secondary-accent));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .algorithm-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .algorithm-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            background: var(--card-bg);
+            border-color: var(--primary-accent);
+        }
+
+        .algorithm-card h3 {
+            color: var(--primary-text);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .algorithm-card h3 i {
+            color: var(--primary-accent);
+            font-size: 1.3rem;
+        }
+
+        .algorithm-card p {
+            color: var(--secondary-text);
+            font-size: 1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .read-more-btn {
+            background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+            color: var(--primary-text);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .read-more-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4);
+            color: var(--primary-text);
+            text-decoration: none;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 3rem;
+            overflow-y: auto;
+            z-index: 10000;
+            animation: modalSlideIn 0.3s ease;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header h2 {
+            color: var(--primary-text);
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: var(--danger-color);
+            color: var(--primary-text);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .modal-content h4 {
+            color: var(--primary-accent);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+        }
+
+        .modal-content p {
+            color: var(--secondary-text);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .modal-content ul {
+            color: var(--secondary-text);
+            padding-left: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-content li {
+            margin-bottom: 0.8rem;
+            line-height: 1.7;
+        }
+
+        .modal-content strong {
+            color: var(--primary-text);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary-bg);
+            padding: 4rem 4% 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer p {
+            color: var(--secondary-text);
+            font-size: 1rem;
+            margin: 0.8rem 0;
+        }
+
+        .footer i {
+            color: var(--danger-color);
+            margin: 0 0.5rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 4%;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 100%;
+                height: 100vh;
+                background: rgba(10, 10, 10, 0.95);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: right 0.3s ease;
+                z-index: 1000;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links ul {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .nav-links ul li a {
+                font-size: 1.2rem;
+                padding: 1rem 2rem;
+            }
+
+            .mobile-menu {
+                display: block;
+                z-index: 1001;
+            }
+
+            .docs-header {
+                padding: 8rem 4% 4rem;
+            }
+
+            .algorithms-section {
+                padding: 6rem 4%;
+            }
+
+            .algorithms-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .modal {
+                width: 95%;
+                padding: 2rem;
+                max-height: 90vh;
+            }
+
+            .modal-header h2 {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .algorithm-card {
+                padding: 2rem;
+            }
+
+            .modal {
+                padding: 1.5rem;
+            }
+
+            .modal-header {
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav id="navbar">
+        <a href="index.html" class="logo">scheDulify</a>
+
+        <div class="nav-links" id="navLinks">
+            <i class="fas fa-times close-icon" onclick="hideMenu()"></i>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="docs.html">Document</a></li>
+                <li><a href="backend/ganttcharts.html">Simulator</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+
+        <button class="mobile-menu" id="hamburger" onclick="showMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <section class="docs-header">
+        <h1>CPU Scheduling Algorithms</h1>
+        <p>Explore the fundamental algorithms that power modern operating systems and learn how they optimize CPU
+            utilization for maximum performance.</p>
+    </section>
+
+    <section class="algorithms-section">
+        <!-- <div class="section-title">
+            <h2>Scheduling Algorithms</h2>
+            <p>Discover how different scheduling algorithms manage processes and optimize system performance</p>
+        </div> -->
+
+        <div class="algorithms-container">
+
+            <!-- FCFS -->
+            <div class="algorithm-card" data-aos="zoom-in-up">
+                <h3><i class="fas fa-clock"></i> First Come First Serve (FCFS)</h3>
+                <p>FCFS schedules processes strictly in the order of their arrival in a queue. When a process arrives,
+                    it's added to the end of the queue and processed sequentially.</p>
+                <button class="read-more-btn" onclick="openModal('fcfs')">
+                    Learn More <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- SJF -->
+            <div class="algorithm-card" data-aos="zoom-in-up">
+                <h3><i class="fas fa-stopwatch"></i> Shortest Job First (SJF)</h3>
+                <p>SJF selects the process with the shortest estimated execution time next. The main objective is to
+                    minimize the average waiting time across all processes. It favors shorter tasks for faster
+                    completion.
+                </p>
+                <button class="read-more-btn" onclick="openModal('sjf')">
+                    Learn More <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- SRTF -->
+            <div class="algorithm-card" data-aos="zoom-in-up">
+                <h3><i class="fas fa-hourglass-half"></i> Shortest Remaining Time First (SRTF)</h3>
+                <p>SRTF is a preemptive version of SJF. The CPU selects the process with the shortest remaining time to
+                    complete, allowing interruptions for shorter jobs.</p>
+                <button class="read-more-btn" onclick="openModal('srtf')">
+                    Learn More <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Priority -->
+            <div class="algorithm-card" data-aos="zoom-in-up">
+                <h3><i class="fas fa-star"></i> Priority Scheduling</h3>
+                <p>Processes are assigned priority levels and the CPU selects the highest priority process first. Can be
+                    implemented as preemptive or non-preemptive.</p>
+                <button class="read-more-btn" onclick="openModal('priority')">
+                    Learn More <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Round Robin -->
+            <div class="algorithm-card" data-aos="zoom-in-up">
+                <h3><i class="fas fa-sync-alt"></i> Round Robin (RR)</h3>
+                <p>Each process is assigned a fixed time quantum. Processes are placed in a circular queue and the CPU
+                    switches between them after each time slice.</p>
+                <button class="read-more-btn" onclick="openModal('rr')">
+                    Learn More <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Multilevel Queue -->
+            <div class="algorithm-card" data-aos="zoom-in-up">
+                <h3><i class="fas fa-layer-group"></i> Multilevel Queue (MLQ)</h3>
+                <p>Divides processes into multiple queues based on priority or type. Each queue can have its own
+                    scheduling algorithm and processes don't move between queues.</p>
+                <button class="read-more-btn" onclick="openModal('mlq')">
+                    Learn More <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+
+    <!-- FCFS Modal -->
+    <div class="modal" id="fcfs-modal">
+        <div class="modal-header">
+            <h2>First Come First Serve (FCFS)</h2>
+            <button class="close-btn" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-content">
+            <h4>Mechanism:</h4>
+            <p>FCFS schedules processes strictly in the order of their arrival in a queue. When a process arrives, it's
+                added to the end of the queue. The CPU processes each task in turn, moving from the front to the back of
+                the queue.</p>
+
+            <h4>Characteristics:</h4>
+            <ul>
+                <li><strong>Non-preemptive:</strong> Once a process starts executing, it will run until completion, even
+                    if another process arrives with higher priority.</li>
+                <li><strong>Fairness:</strong> All processes get to execute in the order they arrive, which prevents
+                    newer tasks from taking CPU time away from older ones.</li>
+            </ul>
+
+            <h4>Pros:</h4>
+            <ul>
+                <li>Simple and straightforward to implement.</li>
+                <li>Ensures each task is completed based on arrival time, maintaining fairness for batch processing.
+                </li>
+            </ul>
+
+            <h4>Cons:</h4>
+            <ul>
+                <li><strong>Convoy Effect:</strong> Shorter tasks can be delayed by a long-running process that arrived
+                    earlier, leading to inefficient CPU utilization.</li>
+                <li><strong>High Waiting Times:</strong> Average waiting time can be high since tasks must wait for all
+                    preceding ones to complete, regardless of their execution time.</li>
+            </ul>
+
+            <h4>Use Case:</h4>
+            <p>Typically used in batch systems or for simple job queues where response time isn't a high priority.</p>
+        </div>
+    </div>
+
+    <!-- SJF Modal -->
+    <div class="modal" id="sjf-modal">
+        <div class="modal-header">
+            <h2>Shortest Job First (SJF)</h2>
+            <button class="close-btn" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-content">
+            <h4>Mechanism:</h4>
+            <p>SJF selects the process with the shortest estimated execution time next. The main objective is to
+                minimize the average waiting time.</p>
+
+            <h4>Characteristics:</h4>
+            <ul>
+                <li><strong>Non-preemptive:</strong> Once started, the selected job runs until it's finished. However,
+                    in some systems, a preemptive SJF variant called Shortest Remaining Time First (SRTF) interrupts a
+                    running process if a shorter job arrives.</li>
+                <li><strong>Optimal for Waiting Time:</strong> Minimizes average waiting time compared to other
+                    algorithms, given that shorter jobs are executed first.</li>
+            </ul>
+
+            <h4>Pros:</h4>
+            <ul>
+                <li>Efficiently reduces waiting time by running shorter processes ahead of longer ones.</li>
+                <li>Better suited for time-sensitive jobs and tasks with known execution times.</li>
+            </ul>
+
+            <h4>Cons:</h4>
+            <ul>
+                <li><strong>Requires Knowledge of Execution Time:</strong> SJF relies on knowing the length of each job,
+                    which isn't always possible in real-world scenarios.</li>
+                <li><strong>Starvation of Longer Jobs:</strong> Long-running processes may be continuously postponed if
+                    shorter jobs keep arriving, potentially leading to indefinite waiting times for large tasks.</li>
+            </ul>
+
+            <h4>Use Case:</h4>
+            <p>Often used in batch processing systems or situations where task durations can be estimated. It is less
+                commonly used in interactive systems where process times vary significantly.</p>
+        </div>
+    </div>
+
+    <!-- SRTF Modal -->
+    <div class="modal" id="srtf-modal">
+        <div class="modal-header">
+            <h2>Shortest Remaining Time First (SRTF)</h2>
+            <button class="close-btn" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-content">
+            <h4>Mechanism:</h4>
+            <p>SRTF is a preemptive version of Shortest Job First (SJF). The CPU selects the process with the shortest
+                remaining time to complete. If a new process arrives with a shorter remaining time than the current one,
+                it preempts the current process.</p>
+
+            <h4>Characteristics:</h4>
+            <ul>
+                <li><strong>Preemptive:</strong> Processes are interrupted if a new job with a shorter remaining time
+                    arrives.</li>
+                <li><strong>Optimized Waiting Time:</strong> Since shorter jobs are prioritized, average waiting time is
+                    minimized.</li>
+            </ul>
+
+            <h4>Pros:</h4>
+            <ul>
+                <li><strong>Efficient Waiting Times:</strong> Reduces overall waiting time by dynamically selecting the
+                    shortest remaining job.</li>
+                <li><strong>Better for Interactive Systems:</strong> More responsive as shorter tasks are completed
+                    faster.</li>
+            </ul>
+
+            <h4>Cons:</h4>
+            <ul>
+                <li><strong>Requires Knowledge of Job Length:</strong> Accurate estimation of job lengths is necessary,
+                    which may be difficult or impossible in certain situations.</li>
+                <li><strong>Frequent Context Switching:</strong> Preemptions can lead to high context-switching
+                    overhead, potentially slowing down the system.</li>
+            </ul>
+
+            <h4>Use Case:</h4>
+            <p>Often suitable for interactive environments where smaller tasks benefit from priority, like time-sharing
+                systems, but may be less effective in systems where task lengths are unpredictable.</p>
+        </div>
+    </div>
+
+    <!-- Priority Modal -->
+    <div class="modal" id="priority-modal">
+        <div class="modal-header">
+            <h2>Priority Scheduling</h2>
+            <button class="close-btn" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-content">
+            <h4>Mechanism:</h4>
+            <p>Processes are assigned priority levels (usually numerical). The CPU selects the process with the highest
+                priority first, executing it either until it's done (non-preemptive) or until a higher-priority process
+                arrives (preemptive).</p>
+
+            <h4>Characteristics:</h4>
+            <ul>
+                <li><strong>Can Be Preemptive or Non-preemptive:</strong> In a preemptive version, if a higher-priority
+                    process arrives, it interrupts the current process. In a non-preemptive version, the current process
+                    continues until it's completed.</li>
+                <li><strong>Flexibility in Priority Assignment:</strong> Priority levels can be set based on factors
+                    like resource needs, user importance, or deadlines.</li>
+            </ul>
+
+            <h4>Pros:</h4>
+            <ul>
+                <li><strong>Efficiency for Critical Tasks:</strong> Critical processes can be given priority to ensure
+                    timely execution.</li>
+                <li><strong>Customizable:</strong> Can be adjusted to suit system or user needs based on the importance
+                    of tasks.</li>
+            </ul>
+
+            <h4>Cons:</h4>
+            <ul>
+                <li><strong>Starvation:</strong> Lower-priority tasks can experience indefinite delays if high-priority
+                    tasks keep arriving.</li>
+                <li><strong>Aging Requirement:</strong> To prevent starvation, priority scheduling often requires aging
+                    (increasing priority over time for waiting processes) to ensure eventual CPU time.</li>
+            </ul>
+
+            <h4>Use Case:</h4>
+            <p>Useful for systems that handle both critical and routine processes, such as real-time operating systems
+                where certain tasks (e.g., handling hardware interrupts) need immediate CPU access over regular user
+                processes.</p>
+        </div>
+    </div>
+
+    <!-- Round Robin Modal -->
+    <div class="modal" id="rr-modal">
+        <div class="modal-header">
+            <h2>Round Robin (RR)</h2>
+            <button class="close-btn" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-content">
+            <h4>Mechanism:</h4>
+            <p>Round Robin assigns each process a fixed time quantum (time slice). Processes are placed in a circular
+                queue, and the CPU cycles through them, executing each for one time quantum. If a process doesn't
+                complete within its time slice, it's moved to the end of the queue and will resume in the next cycle.
+            </p>
+
+            <h4>Characteristics:</h4>
+            <ul>
+                <li><strong>Preemptive:</strong> Each process is forcibly removed after its time quantum expires if it
+                    hasn't finished.</li>
+                <li><strong>Time-Sharing:</strong> Promotes fairness by giving all processes equal CPU time in turns.
+                </li>
+            </ul>
+
+            <h4>Pros:</h4>
+            <ul>
+                <li><strong>Fair Scheduling:</strong> Every process gets CPU time at regular intervals, preventing
+                    starvation.</li>
+                <li><strong>Responsive:</strong> Ideal for time-sharing and interactive systems, maintaining system
+                    responsiveness.</li>
+            </ul>
+
+            <h4>Cons:</h4>
+            <ul>
+                <li><strong>Context Switching Overhead:</strong> Frequent switching can reduce efficiency if time
+                    quantum is too small.</li>
+                <li><strong>Quantum Selection:</strong> If time slice is too large, it behaves like FCFS; too small, it
+                    leads to overhead.</li>
+            </ul>
+
+            <h4>Use Case:</h4>
+            <p>Commonly used in general-purpose and interactive operating systems where fairness and responsiveness are
+                key, such as time-shared environments.</p>
+        </div>
+    </div>
+
+    <!-- Multilevel Queue Modal -->
+    <div class="modal" id="mlq-modal">
+        <div class="modal-header">
+            <h2>Multilevel Queue (MLQ)</h2>
+            <button class="close-btn" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-content">
+            <h4>Mechanism:</h4>
+            <p>Multilevel Queue Scheduling divides processes into multiple queues based on specific criteria (e.g.,
+                priority, process type). Each queue may use a different scheduling algorithm. Once assigned to a queue,
+                a process stays in that queue permanently.</p>
+
+            <h4>Characteristics:</h4>
+            <ul>
+                <li><strong>Queue-Based Organization:</strong> Processes are grouped by type, such as system,
+                    interactive, or batch.</li>
+                <li><strong>Fixed Scheduling:</strong> Each queue has its own scheduling policy (e.g., Round Robin,
+                    FCFS, etc.).</li>
+            </ul>
+
+            <h4>Pros:</h4>
+            <ul>
+                <li><strong>Specialized Handling:</strong> Different types of processes are handled appropriately for
+                    their needs.</li>
+                <li><strong>Improved Performance:</strong> Tailored algorithms for different queues lead to better
+                    resource utilization.</li>
+            </ul>
+
+            <h4>Cons:</h4>
+            <ul>
+                <li><strong>No Movement Between Queues:</strong> Once a process is in a queue, it cannot switch, even if
+                    its characteristics change.</li>
+                <li><strong>Starvation Risk:</strong> Lower-priority queues may wait indefinitely if higher-priority
+                    queues are full.</li>
+            </ul>
+
+            <h4>Use Case:</h4>
+            <p>Ideal for systems that need to separate different types of processes (e.g., real-time, interactive,
+                batch), such as complex multi-user or real-time operating systems.</p>
+        </div>
+    </div>
+    <!-- AOS Library -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+    <!-- JavaScript for Modal Handling -->
+    <script>
+        function openModal(algorithm) {
+            document.getElementById(`${algorithm}-modal`).style.display = 'block';
+            document.getElementById('modalOverlay').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+
+        function showMenu() {
+            document.getElementById('navLinks').classList.add('active');
+        }
+
+        function hideMenu() {
+            document.getElementById('navLinks').classList.remove('active');
+        }
+
+        // Add nav scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+    </script>
+
+
+    <!-- Footer -->
+    <section class="footer">
+        <p>Made With<i class="far fa-heart"></i>by Kashish Seth & Garima Gupta</p>
+        <p> <i class="fa fa-copyright"></i>Copyright 2025 | All rights reserved</p>
+    </section>
+
+</body>
+
+</html>

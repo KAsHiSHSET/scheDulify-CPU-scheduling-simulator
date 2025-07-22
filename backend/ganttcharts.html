@@ -1,0 +1,2396 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+    integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+
+  <link rel="icon" href="\images\favicon\cpufavicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="\images\favicon\cpufavicon.ico" type="image/x-icon">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="./js/bootstrap.min.js"></script>
+  <script src="./js/bootstrap-slider.js"></script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      showProcessingMessages: false,
+      messageStyle: "none",
+      tex2jax: { inlineMath: [['$','$'],['\\(','\\)']] }
+    });
+  </script>
+
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+  <script defer type="text/javascript" src="./js/MathJaxSetup.js">
+  </script>
+  <title>CPU Scheduling Simulator</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --primary-bg: #0a0a0a;
+      --secondary-bg: #111111;
+      --card-bg: #1a1a1a;
+      --accent-bg: #2a2a2a;
+      --primary-text: #ffffff;
+      --secondary-text: #b0b0b0;
+      --accent-text: #888888;
+      --primary-accent: #3b82f6;
+      --secondary-accent: #6366f1;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --border-color: #333333;
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--primary-bg);
+      color: var(--primary-text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    *:not(input) {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--secondary-bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-accent);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--secondary-accent);
+    }
+
+    /* Navigation */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 4%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      transition: all 0.3s ease;
+    }
+
+    nav.scrolled {
+      background: rgba(10, 10, 10, 0.98);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    nav a {
+      font-size: 1.8rem;
+      color: var(--primary-text);
+      text-decoration: none;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      background: linear-gradient(45deg, var(--primary-accent), var(--secondary-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-links ul {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+
+    .nav-links ul li a {
+      color: var(--secondary-text);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      position: relative;
+      background: unset;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+      -webkit-text-fill-color: var(--secondary-text);
+    }
+
+    .nav-links ul li a:hover {
+      color: var(--primary-text);
+      background: var(--glass-bg);
+      transform: translateY(-2px);
+      -webkit-text-fill-color: var(--primary-text);
+    }
+
+    .nav-links ul li a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(45deg, var(--primary-accent), var(--secondary-accent));
+      transition: all 0.3s ease;
+      transform: translateX(-50%);
+    }
+
+    .nav-links ul li a:hover::after {
+      width: 80%;
+    }
+
+    .mobile-menu {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--primary-text);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .close-icon {
+      font-size: 1.8rem;
+      color: var(--primary-text);
+      cursor: pointer;
+      display: none;
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      z-index: 1001;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 120px 2rem 4rem;
+    }
+
+    /* Header */
+    .header-section {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .header-section h2 {
+      font-size: clamp(2.5rem, 6vw, 3.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--primary-text), var(--primary-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+
+    .header-section p {
+      font-size: 1.1rem;
+      color: var(--secondary-text);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Input Table */
+    .input-section {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .input-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-accent), var(--secondary-accent));
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+      background: transparent;
+    }
+
+    .table th,
+    .table td {
+      padding: 1rem;
+      text-align: center;
+      border: 1px solid var(--glass-border);
+      background: transparent;
+    }
+
+    .table th {
+      background: var(--glass-bg);
+      color: var(--primary-text);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .table td {
+      color: var(--secondary-text);
+    }
+
+    .table input {
+      width: 100%;
+      padding: 0.5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--primary-text);
+      font-size: 0.9rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .table input:hover {
+      background: var(--accent-bg);
+      border-color: var(--primary-accent);
+    }
+
+    .table input:focus {
+      outline: none;
+      background: var(--accent-bg);
+      border-color: var(--primary-accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Controls Section */
+    .controls-section {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .control-group {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 1.5rem;
+      border: 1px solid var(--glass-border);
+    }
+
+    .control-group label {
+      display: block;
+      color: var(--primary-text);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .dropdown-toggle {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      color: var(--primary-text);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .dropdown-toggle:hover {
+      background: var(--accent-bg);
+      border-color: var(--primary-accent);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 0.5rem 0;
+      margin-top: 0.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .dropdown.show .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-menu li {
+      list-style: none;
+    }
+
+    .dropdown-menu li a {
+      display: block;
+      padding: 0.5rem 1rem;
+      color: var(--secondary-text);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .dropdown-menu li a:hover {
+      background: var(--glass-bg);
+      color: var(--primary-text);
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .input-group button {
+      padding: 0.5rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--primary-text);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .input-group button:hover {
+      background: var(--primary-accent);
+      border-color: var(--primary-accent);
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 0.5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--primary-text);
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--primary-accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Algorithm Explanation */
+    .algorithm-explanation {
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-top: 1rem;
+      color: var(--secondary-text);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* Run Buttons */
+    .run-section {
+      text-align: center;
+      margin: 3rem 0;
+    }
+
+    .run-section p {
+      color: var(--secondary-text);
+      margin-bottom: 1rem;
+    }
+
+    .run-button {
+      padding: 0.75rem 2rem;
+      background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+      border: none;
+      border-radius: 12px;
+      color: var(--primary-text);
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 0 0.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .run-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .run-button:hover::before {
+      left: 100%;
+    }
+
+    .run-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+    }
+
+    .run-button.reset {
+      background: linear-gradient(135deg, var(--danger-color), #dc2626);
+    }
+
+    .run-button.reset:hover {
+      box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+    }
+
+    /* Progress Bar */
+    .progress {
+      height: 30px;
+      background: var(--card-bg);
+      border-radius: 15px;
+      overflow: hidden;
+      margin: 2rem 0;
+      border: 1px solid var(--glass-border);
+    }
+
+    .progress-bar {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--primary-text);
+      transition: width 0.6s ease;
+    }
+
+    .progress-bar-idle {
+      background-color: #6b7280;
+    }
+
+    .progress-bar-context {
+      background-color: #374151;
+    }
+
+    .progress-bar-first {
+      background-color: #3b82f6;
+    }
+
+    .progress-bar-second {
+      background-color: #f59e0b;
+    }
+
+    .progress-bar-third {
+      background-color: #8b5cf6;
+    }
+
+    .progress-bar-fourth {
+      background-color: #10b981;
+    }
+
+    .progress-bar-fifth {
+      background-color: #ef4444;
+    }
+
+    .progress-bar-sixth {
+      background-color: #6366f1;
+    }
+
+    .progress-bar-seventh {
+      background-color: #f59e0b;
+    }
+
+    .progress-bar-eighth {
+      background-color: #8b5cf6;
+    }
+
+    .progress-bar-ninth {
+      background-color: #06b6d4;
+    }
+
+    .progress-bar-tenth {
+      background-color: #84cc16;
+    }
+
+    /* Ruler */
+    .ruler {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      height: 2em;
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .ruler li {
+      flex: 1;
+      text-align: center;
+      color: var(--secondary-text);
+      font-size: 0.8rem;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ruler li::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1px;
+      height: 1em;
+      background: var(--glass-border);
+    }
+
+    /* Output Table */
+    .output-section {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin: 3rem 0;
+    }
+
+    .output-section h1 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, var(--primary-text), var(--primary-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .output-section .table th {
+      background: var(--primary-accent);
+      color: var(--primary-text);
+    }
+
+    /* Data Visualization */
+    .data-visualization {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin: 3rem 0;
+    }
+
+    .data-visualization h2 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, var(--primary-text), var(--primary-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-card {
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .chart-card h3 {
+      color: var(--primary-text);
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 10px;
+      padding: 1rem;
+      border: 2px solid var(--primary-accent);
+    }
+
+    /* Statistics */
+    .statistics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+    }
+
+    .stat-card .label {
+      color: var(--secondary-text);
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card .value {
+      color: var(--primary-accent);
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    /* Explanation Button */
+    .explanation-section {
+      text-align: center;
+      margin: 3rem 0;
+    }
+
+    .explanation-button {
+      padding: 1rem 2rem;
+      background: var(--danger-color);
+      border: none;
+      border-radius: 12px;
+      color: var(--primary-text);
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .explanation-button:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+    }
+
+    /* Explanation Container */
+    .explanation-container {
+      background: var(--glass-bg);
+      border-radius: 16px;
+      padding: 2.5rem;
+      margin: 2rem 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      color: #e5e7eb;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .explanation-container h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #60a5fa;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .explanation-container h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #f9fafb;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .explanation-container h4 {
+      font-size: 1.2rem;
+      color: #a5b4fc;
+      margin: 1.5rem 0 0.5rem;
+      text-align: left;
+    }
+
+    .explanation-container ol {
+      padding-left: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .explanation-container ol li {
+      margin-bottom: 0.8rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      text-align: left;
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .timeline-item {
+      background: var(--glass-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: transform 0.3s ease;
+      padding: 8px 0;
+      border-left: 3px solid #007bff;
+      padding-left: 15px;
+      margin: 5px 0;
+      color: var(--primary-text);
+    }
+
+    .timeline-item:hover {
+      transform: translateX(5px);
+      background: #374151;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--primary-bg);
+      padding: 4rem 4% 2rem;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .footer p {
+      color: var(--secondary-text);
+      font-size: 1rem;
+      margin: 0.8rem 0;
+    }
+
+    .footer i {
+      color: var(--danger-color);
+      margin: 0 0.5rem;
+    }
+
+    /* Hidden Elements */
+    .hidden {
+      display: none !important;
+    }
+
+    .collapse {
+      display: none;
+    }
+
+    .collapse.in {
+      display: table-row;
+    }
+
+    .priority.collapse {
+      display: none;
+    }
+
+    .priority.collapse.in {
+      display: table-cell;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 100%;
+        height: 100vh;
+        background: rgba(10, 10, 10, 0.95);
+        backdrop-filter: blur(20px);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: right 0.3s ease;
+        z-index: 1000;
+      }
+
+      .nav-links.active {
+        right: 0;
+      }
+
+      .nav-links ul {
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .nav-links ul li a {
+        font-size: 1.2rem;
+        padding: 1rem 2rem;
+      }
+
+      .mobile-menu {
+        display: block;
+      }
+
+      .container {
+        padding: 100px 1rem 2rem;
+      }
+
+      .controls-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .statistics {
+        grid-template-columns: 1fr;
+      }
+
+      .table {
+        font-size: 0.8rem;
+      }
+
+      .table th,
+      .table td {
+        padding: 0.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .run-button {
+        display: block;
+        width: 100%;
+        margin: 0.5rem 0;
+      }
+
+      .input-section,
+      .controls-section,
+      .output-section,
+      .data-visualization {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav id="navbar">
+    <a href="../index.html">scheDulify </a>
+    <div class="nav-links" id="navLinks">
+      <i class="fas fa-times close-icon" onclick="hideMenu()"></i>
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../docs.html">Document</a></li>
+        <li><a href="ganttcharts.html">Simulator</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+    </div>
+    <button class="mobile-menu" onclick="showMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+  </nav>
+
+  <div class="container">
+    <div class="header-section">
+      <h2>CPU Scheduler</h2>
+      <p id="adj_counter">Enter values into the table, and the chart below will display the results.</p>
+    </div>
+
+    <div class="input-section">
+      <table class="table" id="inputTable">
+        <thead>
+          <tr>
+            <th>Process:</th>
+            <th>Arrival Time:</th>
+            <th>Burst Time:</th>
+            <th class="priority collapse">Priority:</th>
+          </tr>
+        </thead>
+        <tbody id="processTable">
+          <tr id="row_1" class="collapse in">
+            <th>P1</th>
+            <td><input id="arrive_1" type="number" min="0" value="0" /></td>
+            <td><input type="number" id="burst_1" min="1" value="1" /></td>
+            <td class="priority collapse"><input id="priority_1" type="number" value="1" /></td>
+          </tr>
+          <tr id="row_2" class="collapse in">
+            <th>P2</th>
+            <td><input id="arrive_2" type="number" value="0" /></td>
+            <td><input type="number" id="burst_2" value="1" /></td>
+            <td class="priority collapse"><input id="priority_2" type="number" value="2" /></td>
+          </tr>
+          <tr id="row_3" class="collapse in">
+            <th>P3</th>
+            <td><input id="arrive_3" type="number" value="0" /></td>
+            <td><input type="number" id="burst_3" value="1" /></td>
+            <td class="priority collapse"><input id="priority_3" type="number" value="3" /></td>
+          </tr>
+          <tr id="row_4" class="collapse">
+            <th>P4</th>
+            <td><input id="arrive_4" type="number" value="0" /></td>
+            <td><input type="number" id="burst_4" value="1" /></td>
+            <td class="priority collapse"><input id="priority_4" type="number" value="4" /></td>
+          </tr>
+          <tr id="row_5" class="collapse">
+            <th>P5</th>
+            <td><input id="arrive_5" type="number" value="0" /></td>
+            <td><input type="number" id="burst_5" value="1" /></td>
+            <td class="priority collapse"><input id="priority_5" type="number" value="5" /></td>
+          </tr>
+          <tr id="row_6" class="collapse">
+            <th>P6</th>
+            <td><input id="arrive_6" type="number" value="0" /></td>
+            <td><input type="number" id="burst_6" value="1" /></td>
+            <td class="priority collapse"><input id="priority_6" type="number" value="6" /></td>
+          </tr>
+          <tr id="row_7" class="collapse">
+            <th>P7</th>
+            <td><input id="arrive_7" type="number" value="0" /></td>
+            <td><input type="number" id="burst_7" value="1" /></td>
+            <td class="priority collapse"><input id="priority_7" type="number" value="7" /></td>
+          </tr>
+          <tr id="row_8" class="collapse">
+            <th>P8</th>
+            <td><input id="arrive_8" type="number" value="0" /></td>
+            <td><input type="number" id="burst_8" value="1" /></td>
+            <td class="priority collapse"><input id="priority_8" type="number" value="8" /></td>
+          </tr>
+          <tr id="row_9" class="collapse">
+            <th>P9</th>
+            <td><input id="arrive_9" type="number" value="0" /></td>
+            <td><input type="number" id="burst_9" value="1" /></td>
+            <td class="priority collapse"><input id="priority_9" type="number" value="9" /></td>
+          </tr>
+          <tr id="row_10" class="collapse">
+            <th>P10</th>
+            <td><input id="arrive_10" type="number" value="0" /></td>
+            <td><input type="number" id="burst_10" value="1" /></td>
+            <td class="priority collapse"><input id="priority_10" type="number" value="10" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="controls-section">
+      <div class="controls-grid">
+        <div class="control-group">
+          <label for="algorithmSelect">Scheduling Algorithm:</label>
+          <div class="dropdown">
+            <div class="dropdown-toggle" id="algorithmSelect">
+              <span>Select Algorithm</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <ul class="dropdown-menu">
+              <li><a href="#" data-value="fcfs">First Come First Served (FCFS)</a></li>
+              <li><a href="#" data-value="sjf">Shortest Job First (SJF)</a></li>
+              <li><a href="#" data-value="srtf">Shortest Remaining Time First (SRTF)</a></li>
+              <li><a href="#" data-value="priority">Priority Scheduling</a></li>
+              <li><a href="#" data-value="priority_preemptive">Priority Preemptive</a></li>
+              <li><a href="#" data-value="rr">Round Robin (RR)</a></li>
+            </ul>
+          </div>
+          <div class="algorithm-explanation" id="algorithmExplanation">
+            <p>Select a scheduling algorithm to see its explanation and configure parameters.</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="processCount">Number of Processes:</label>
+          <div class="input-group">
+            <button type="button" onclick="decreaseProcesses()">
+              <i class="fas fa-minus"></i>
+            </button>
+            <input type="number" id="processCount" value="3" min="1" max="10" readonly />
+            <button type="button" onclick="increaseProcesses()">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="control-group" id="timeQuantumGroup" style="display: none;">
+          <label for="timeQuantum">Time Quantum:</label>
+          <div class="input-group">
+            <button type="button" onclick="decreaseQuantum()">
+              <i class="fas fa-minus"></i>
+            </button>
+            <input type="number" id="timeQuantum" value="2" min="1" />
+            <button type="button" onclick="increaseQuantum()">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="contextSwitch">Context Switch Time:</label>
+          <div class="input-group">
+            <button type="button" onclick="decreaseContextSwitch()">
+              <i class="fas fa-minus"></i>
+            </button>
+            <input type="number" id="contextSwitch" value="0" min="0" />
+            <button type="button" onclick="increaseContextSwitch()">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="run-section">
+      <p>Click the button below to generate the scheduling results:</p>
+      <button class="run-button" onclick="runScheduler()">
+        <i class="fas fa-play"></i> Run Scheduler
+      </button>
+      <button class="run-button reset" onclick="resetScheduler()">
+        <i class="fas fa-redo"></i> Reset
+      </button>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress hidden" id="progressContainer">
+      <div class="progress-bar" id="progressBar">
+        <span id="progressText">Idle</span>
+      </div>
+    </div>
+
+    <!-- Ruler -->
+    <ul class="ruler hidden" id="ruler"></ul>
+
+    <!-- Output Section -->
+    <div class="output-section hidden" id="outputSection">
+      <h1>Scheduling Results</h1>
+      <table class="table" id="outputTable">
+        <thead>
+          <tr>
+            <th>Process</th>
+            <th>Arrival Time</th>
+            <th>Burst Time</th>
+            <th>Completion Time</th>
+            <th>Turnaround Time</th>
+            <th>Waiting Time</th>
+            <th>Response Time</th>
+          </tr>
+        </thead>
+        <tbody id="outputTableBody">
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Statistics -->
+    <div class="statistics hidden" id="statisticsSection">
+      <div class="stat-card">
+        <div class="label">Average Turnaround Time</div>
+        <div class="value" id="avgTurnaroundTime">0.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Average Waiting Time</div>
+        <div class="value" id="avgWaitingTime">0.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Average Response Time</div>
+        <div class="value" id="avgResponseTime">0.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">CPU Utilization</div>
+        <div class="value" id="cpuUtilization">0.00%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Throughput</div>
+        <div class="value" id="throughput">0.00</div>
+      </div>
+    </div>
+
+    <!-- Data Visualization -->
+    <div class="data-visualization hidden" id="dataVisualization">
+      <h2>Performance Analysis</h2>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3>Turnaround Time Comparison</h3>
+          <div class="chart-container">
+            <canvas id="turnaroundChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>Waiting Time Analysis</h3>
+          <div class="chart-container">
+            <canvas id="waitingChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Explanation Section -->
+    <div class="explanation-section" id="explanationSection">
+      <button class="explanation-button" id="explanationToggleBtn" onclick="toggleExplanation()">
+        <i class="fas fa-info-circle"></i> Show Step-by-Step Explanation
+      </button>
+
+      <div class="explanation-container hidden" id="explanationContainer">
+        <h1>Algorithm Execution Steps</h1>
+        <div id="explanationContent">
+          <p>Click "Show Step-by-Step Explanation" to see how the algorithm processes each step.</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="footer">
+      <p>Made With<i class="far fa-heart"></i>by Kashish Seth & Garima Gupta</p>
+      <p> <i class="fa fa-copyright"></i>Copyright 2025 | All rights reserved</p>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+      // Global variables
+      let currentAlgorithm = '';
+      let processCount = 3;
+      let processes = [];
+      let results = [];
+      let charts = {};
+
+      // Algorithm explanations
+      const algorithmExplanations = {
+        fcfs: "First Come First Served (FCFS) is a non-preemptive scheduling algorithm where processes are executed in the order they arrive. Simple but may cause convoy effect.",
+        sjf: "Shortest Job First (SJF) is a non-preemptive algorithm that selects the process with the shortest burst time. Minimizes average waiting time but may cause starvation.",
+        srtf: "Shortest Remaining Time First (SRTF) is the preemptive version of SJF. The process with the shortest remaining time is executed first.",
+        priority: "Priority Scheduling is a non-preemptive algorithm where each process has a priority. Higher priority processes are executed first.",
+        priority_preemptive: "Priority Preemptive Scheduling allows higher priority processes to preempt lower priority ones currently executing.",
+        rr: "Round Robin (RR) is a preemptive algorithm where each process gets a fixed time slice (quantum). Fair but may have higher overhead."
+      };
+
+      // Navigation functionality
+      const navLinks = document.getElementById("navLinks");
+      const hamburger = document.querySelector(".mobile-menu");
+
+      function showMenu() {
+        navLinks.classList.add('active');
+        document.querySelector('.close-icon').style.display = 'block';
+      }
+
+      function hideMenu() {
+        navLinks.classList.remove('active');
+        document.querySelector('.close-icon').style.display = 'none';
+      }
+
+      // Navbar scroll effect
+      window.addEventListener('scroll', function () {
+        const navbar = document.getElementById('navbar');
+        if (window.scrollY > 100) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+      });
+
+      // Dropdown functionality
+      document.addEventListener('DOMContentLoaded', function () {
+        const dropdown = document.querySelector('.dropdown');
+        const dropdownToggle = document.querySelector('.dropdown-toggle');
+        const dropdownMenu = document.querySelector('.dropdown-menu');
+
+        dropdownToggle.addEventListener('click', function (e) {
+          e.stopPropagation();
+          dropdown.classList.toggle('show');
+        });
+
+        dropdownMenu.addEventListener('click', function (e) {
+          e.preventDefault();
+          if (e.target.tagName === 'A') {
+            const value = e.target.getAttribute('data-value');
+            const text = e.target.textContent;
+
+            dropdownToggle.querySelector('span').textContent = text;
+            currentAlgorithm = value;
+            dropdown.classList.remove('show');
+
+            updateAlgorithmExplanation(value);
+            togglePriorityColumn(value);
+            toggleTimeQuantumGroup(value);
+          }
+        });
+
+        document.addEventListener('click', function () {
+          dropdown.classList.remove('show');
+        });
+      });
+
+      // Process count controls
+      function increaseProcesses() {
+        if (processCount < 10) {
+          processCount++;
+          document.getElementById('processCount').value = processCount;
+          updateProcessTable();
+        }
+      }
+
+      function decreaseProcesses() {
+        if (processCount > 1) {
+          processCount--;
+          document.getElementById('processCount').value = processCount;
+          updateProcessTable();
+        }
+      }
+
+      // Time quantum controls
+      function increaseQuantum() {
+        const input = document.getElementById('timeQuantum');
+        input.value = parseInt(input.value) + 1;
+      }
+
+      function decreaseQuantum() {
+        const input = document.getElementById('timeQuantum');
+        if (parseInt(input.value) > 1) {
+          input.value = parseInt(input.value) - 1;
+        }
+      }
+
+      // Context switch controls
+      function increaseContextSwitch() {
+        const input = document.getElementById('contextSwitch');
+        input.value = parseInt(input.value) + 1;
+      }
+
+      function decreaseContextSwitch() {
+        const input = document.getElementById('contextSwitch');
+        if (parseInt(input.value) > 0) {
+          input.value = parseInt(input.value) - 1;
+        }
+      }
+
+      // Update process table
+      function updateProcessTable() {
+        for (let i = 1; i <= 10; i++) {
+          const row = document.getElementById(`row_${i}`);
+          if (i <= processCount) {
+            row.classList.add('in');
+          } else {
+            row.classList.remove('in');
+          }
+        }
+      }
+
+      // Update algorithm explanation
+      function updateAlgorithmExplanation(algorithm) {
+        const explanation = document.getElementById('algorithmExplanation');
+        explanation.innerHTML = `<p>${algorithmExplanations[algorithm] || 'Select an algorithm to see its explanation.'}</p>`;
+      }
+
+      // Toggle priority column
+      function togglePriorityColumn(algorithm) {
+        const priorityCells = document.querySelectorAll('.priority');
+        if (algorithm === 'priority' || algorithm === 'priority_preemptive') {
+          priorityCells.forEach(cell => cell.classList.add('in'));
+        } else {
+          priorityCells.forEach(cell => cell.classList.remove('in'));
+        }
+      }
+
+      // Toggle time quantum group
+      function toggleTimeQuantumGroup(algorithm) {
+        const timeQuantumGroup = document.getElementById('timeQuantumGroup');
+        if (algorithm === 'rr') {
+          timeQuantumGroup.style.display = 'block';
+        } else {
+          timeQuantumGroup.style.display = 'none';
+        }
+      }
+
+      // Main scheduler function
+      function runScheduler() {
+        if (!currentAlgorithm) {
+          alert('Please select a scheduling algorithm first!');
+          return;
+        }
+
+        // Collect process data
+        processes = [];
+        for (let i = 1; i <= processCount; i++) {
+          const arrivalTime = parseInt(document.getElementById(`arrive_${i}`).value) || 0;
+          const burstTime = parseInt(document.getElementById(`burst_${i}`).value) || 1;
+          const priority = parseInt(document.getElementById(`priority_${i}`).value) || i;
+
+          processes.push({
+            id: i,
+            name: `P${i}`,
+            arrivalTime: arrivalTime,
+            burstTime: burstTime,
+            priority: priority,
+            remainingTime: burstTime,
+            completionTime: 0,
+            turnaroundTime: 0,
+            waitingTime: 0,
+            responseTime: -1
+          });
+        }
+
+        // Run selected algorithm
+        switch (currentAlgorithm) {
+          case 'fcfs':
+            results = fcfsScheduling(processes);
+            break;
+          case 'sjf':
+            results = sjfScheduling(processes);
+            break;
+          case 'srtf':
+            results = srtfScheduling(processes);
+            break;
+          case 'priority':
+            results = priorityScheduling(processes);
+            break;
+          case 'priority_preemptive':
+            results = priorityPreemptiveScheduling(processes);
+            break;
+          case 'rr':
+            const timeQuantum = parseInt(document.getElementById('timeQuantum').value) || 2;
+            results = roundRobinScheduling(processes, timeQuantum);
+            break;
+        }
+
+        displayResults();
+        displayGanttChart(results.ganttChart, results.totalTime); // ✅ ensure Gantt chart updates
+      }
+
+      // FCFS Scheduling Algorithm
+      function fcfsScheduling(processes) {
+        const result = [...processes].sort((a, b) => a.arrivalTime - b.arrivalTime);
+        let currentTime = 0;
+        const ganttChart = [];
+
+        result.forEach(process => {
+          if (currentTime < process.arrivalTime) {
+            ganttChart.push({
+              process: 'Idle',
+              start: currentTime,
+              end: process.arrivalTime,
+              duration: process.arrivalTime - currentTime
+            });
+            currentTime = process.arrivalTime;
+          }
+
+          const startTime = currentTime;
+          process.responseTime = startTime - process.arrivalTime;
+          currentTime += process.burstTime;
+          process.completionTime = currentTime;
+          process.turnaroundTime = process.completionTime - process.arrivalTime;
+          process.waitingTime = process.turnaroundTime - process.burstTime;
+
+          ganttChart.push({
+            process: process.name,
+            start: startTime,
+            end: currentTime,
+            duration: process.burstTime
+          });
+        });
+
+        return { processes: result, ganttChart, totalTime: currentTime };
+      }
+
+      // SJF Scheduling Algorithm
+      function sjfScheduling(processes) {
+        const result = [...processes];
+        let currentTime = 0;
+        const ganttChart = [];
+        const completed = new Array(processes.length).fill(false);
+
+        while (completed.some(c => !c)) {
+          // Find available processes
+          const available = result.filter((p, i) => !completed[i] && p.arrivalTime <= currentTime);
+
+          if (available.length === 0) {
+            // No process available, CPU is idle
+            const nextArrival = Math.min(...result.filter((p, i) => !completed[i]).map(p => p.arrivalTime));
+            ganttChart.push({
+              process: 'Idle',
+              start: currentTime,
+              end: nextArrival,
+              duration: nextArrival - currentTime
+            });
+            currentTime = nextArrival;
+            continue;
+          }
+
+          // Select process with shortest burst time
+          const selectedProcess = available.reduce((min, p) => p.burstTime < min.burstTime ? p : min);
+          const processIndex = result.findIndex(p => p.id === selectedProcess.id);
+
+          const startTime = currentTime;
+          selectedProcess.responseTime = startTime - selectedProcess.arrivalTime;
+          currentTime += selectedProcess.burstTime;
+          selectedProcess.completionTime = currentTime;
+          selectedProcess.turnaroundTime = selectedProcess.completionTime - selectedProcess.arrivalTime;
+          selectedProcess.waitingTime = selectedProcess.turnaroundTime - selectedProcess.burstTime;
+
+          completed[processIndex] = true;
+
+          ganttChart.push({
+            process: selectedProcess.name,
+            start: startTime,
+            end: currentTime,
+            duration: selectedProcess.burstTime
+          });
+        }
+
+        return { processes: result, ganttChart, totalTime: currentTime };
+      }
+
+      // SRTF Scheduling Algorithm
+      function srtfScheduling(processes) {
+        const result = [...processes];
+        let currentTime = 0;
+        const ganttChart = [];
+        const completed = new Array(processes.length).fill(false);
+
+        while (completed.some(c => !c)) {
+          const available = result.filter((p, i) => !completed[i] && p.arrivalTime <= currentTime);
+
+          if (available.length === 0) {
+            const nextArrival = Math.min(...result.filter((p, i) => !completed[i]).map(p => p.arrivalTime));
+            ganttChart.push({
+              process: 'Idle',
+              start: currentTime,
+              end: nextArrival,
+              duration: nextArrival - currentTime
+            });
+            currentTime = nextArrival;
+            continue;
+          }
+
+          const selectedProcess = available.reduce((min, p) => p.remainingTime < min.remainingTime ? p : min);
+
+          if (selectedProcess.responseTime === -1) {
+            selectedProcess.responseTime = currentTime - selectedProcess.arrivalTime;
+          }
+
+          const nextEvent = Math.min(
+            ...result.filter((p, i) => !completed[i] && p.arrivalTime > currentTime).map(p => p.arrivalTime),
+            currentTime + selectedProcess.remainingTime
+          );
+
+          const executionTime = nextEvent - currentTime;
+          selectedProcess.remainingTime -= executionTime;
+
+          ganttChart.push({
+            process: selectedProcess.name,
+            start: currentTime,
+            end: nextEvent,
+            duration: executionTime
+          });
+
+          currentTime = nextEvent;
+
+          if (selectedProcess.remainingTime === 0) {
+            const processIndex = result.findIndex(p => p.id === selectedProcess.id);
+            selectedProcess.completionTime = currentTime;
+            selectedProcess.turnaroundTime = selectedProcess.completionTime - selectedProcess.arrivalTime;
+            selectedProcess.waitingTime = selectedProcess.turnaroundTime - selectedProcess.burstTime;
+            completed[processIndex] = true;
+          }
+        }
+
+        return { processes: result, ganttChart, totalTime: currentTime };
+      }
+
+      // Priority Scheduling Algorithm
+      function priorityScheduling(processes) {
+        const result = [...processes];
+        let currentTime = 0;
+        const ganttChart = [];
+        const completed = new Array(processes.length).fill(false);
+
+        while (completed.some(c => !c)) {
+          const available = result.filter((p, i) => !completed[i] && p.arrivalTime <= currentTime);
+
+          if (available.length === 0) {
+            const nextArrival = Math.min(...result.filter((p, i) => !completed[i]).map(p => p.arrivalTime));
+            ganttChart.push({
+              process: 'Idle',
+              start: currentTime,
+              end: nextArrival,
+              duration: nextArrival - currentTime
+            });
+            currentTime = nextArrival;
+            continue;
+          }
+
+          const selectedProcess = available.reduce((min, p) => p.priority < min.priority ? p : min);
+          const processIndex = result.findIndex(p => p.id === selectedProcess.id);
+
+          const startTime = currentTime;
+          selectedProcess.responseTime = startTime - selectedProcess.arrivalTime;
+          currentTime += selectedProcess.burstTime;
+          selectedProcess.completionTime = currentTime;
+          selectedProcess.turnaroundTime = selectedProcess.completionTime - selectedProcess.arrivalTime;
+          selectedProcess.waitingTime = selectedProcess.turnaroundTime - selectedProcess.burstTime;
+
+          completed[processIndex] = true;
+
+          ganttChart.push({
+            process: selectedProcess.name,
+            start: startTime,
+            end: currentTime,
+            duration: selectedProcess.burstTime
+          });
+        }
+
+        return { processes: result, ganttChart, totalTime: currentTime };
+      }
+
+      // Priority Preemptive Scheduling Algorithm
+      function priorityPreemptiveScheduling(processes) {
+        const result = [...processes];
+        let currentTime = 0;
+        const ganttChart = [];
+        const completed = new Array(processes.length).fill(false);
+
+        while (completed.some(c => !c)) {
+          const available = result.filter((p, i) => !completed[i] && p.arrivalTime <= currentTime);
+
+          if (available.length === 0) {
+            const nextArrival = Math.min(...result.filter((p, i) => !completed[i]).map(p => p.arrivalTime));
+            ganttChart.push({
+              process: 'Idle',
+              start: currentTime,
+              end: nextArrival,
+              duration: nextArrival - currentTime
+            });
+            currentTime = nextArrival;
+            continue;
+          }
+
+          const selectedProcess = available.reduce((min, p) => p.priority < min.priority ? p : min);
+
+          if (selectedProcess.responseTime === -1) {
+            selectedProcess.responseTime = currentTime - selectedProcess.arrivalTime;
+          }
+
+          const nextEvent = Math.min(
+            ...result.filter((p, i) => !completed[i] && p.arrivalTime > currentTime).map(p => p.arrivalTime),
+            currentTime + selectedProcess.remainingTime
+          );
+
+          const executionTime = nextEvent - currentTime;
+          selectedProcess.remainingTime -= executionTime;
+
+          ganttChart.push({
+            process: selectedProcess.name,
+            start: currentTime,
+            end: nextEvent,
+            duration: executionTime
+          });
+
+          currentTime = nextEvent;
+
+          if (selectedProcess.remainingTime === 0) {
+            const processIndex = result.findIndex(p => p.id === selectedProcess.id);
+            selectedProcess.completionTime = currentTime;
+            selectedProcess.turnaroundTime = selectedProcess.completionTime - selectedProcess.arrivalTime;
+            selectedProcess.waitingTime = selectedProcess.turnaroundTime - selectedProcess.burstTime;
+            completed[processIndex] = true;
+          }
+        }
+
+        return { processes: result, ganttChart, totalTime: currentTime };
+      }
+
+      // Round Robin Scheduling Algorithm
+      function roundRobinScheduling(processes, timeQuantum) {
+        const result = [...processes];
+        let currentTime = 0;
+        const ganttChart = [];
+        const queue = [];
+        const completed = new Array(processes.length).fill(false);
+        let processIndex = 0;
+
+        // Add initial processes to queue
+        while (processIndex < result.length && result[processIndex].arrivalTime <= currentTime) {
+          queue.push(processIndex);
+          processIndex++;
+        }
+
+        while (queue.length > 0 || completed.some(c => !c)) {
+          if (queue.length === 0) {
+            // CPU is idle
+            const nextArrival = result[processIndex].arrivalTime;
+            ganttChart.push({
+              process: 'Idle',
+              start: currentTime,
+              end: nextArrival,
+              duration: nextArrival - currentTime
+            });
+            currentTime = nextArrival;
+
+            while (processIndex < result.length && result[processIndex].arrivalTime <= currentTime) {
+              queue.push(processIndex);
+              processIndex++;
+            }
+          }
+
+          const currentProcessIndex = queue.shift();
+          const currentProcess = result[currentProcessIndex];
+
+          if (currentProcess.responseTime === -1) {
+            currentProcess.responseTime = currentTime - currentProcess.arrivalTime;
+          }
+
+          const executionTime = Math.min(timeQuantum, currentProcess.remainingTime);
+          currentProcess.remainingTime -= executionTime;
+
+          ganttChart.push({
+            process: currentProcess.name,
+            start: currentTime,
+            end: currentTime + executionTime,
+            duration: executionTime
+          });
+
+          currentTime += executionTime;
+
+          // Add newly arrived processes to queue
+          while (processIndex < result.length && result[processIndex].arrivalTime <= currentTime) {
+            queue.push(processIndex);
+            processIndex++;
+          }
+
+          if (currentProcess.remainingTime === 0) {
+            currentProcess.completionTime = currentTime;
+            currentProcess.turnaroundTime = currentProcess.completionTime - currentProcess.arrivalTime;
+            currentProcess.waitingTime = currentProcess.turnaroundTime - currentProcess.burstTime;
+            completed[currentProcessIndex] = true;
+          } else {
+            queue.push(currentProcessIndex);
+          }
+        }
+
+        return { processes: result, ganttChart, totalTime: currentTime };
+      }
+
+      // Display results
+      function displayResults() {
+        displayGanttChart();
+        displayOutputTable();
+        displayStatistics();
+        displayCharts();
+
+        // Show hidden sections
+        document.getElementById('progressContainer').classList.remove('hidden');
+        document.getElementById('ruler').classList.remove('hidden');
+        document.getElementById('outputSection').classList.remove('hidden');
+        document.getElementById('statisticsSection').classList.remove('hidden');
+        document.getElementById('dataVisualization').classList.remove('hidden');
+        document.getElementById('explanationSection').classList.remove('hidden');
+      }
+
+      // Display Gantt Chart
+      function displayGanttChart(ganttChart = results.ganttChart, totalTime = results.totalTime) {
+        const progressBar = document.getElementById('progressBar');
+        const ruler = document.getElementById('ruler');
+
+        progressBar.innerHTML = '';
+        ruler.innerHTML = '';
+
+        const colorClasses = [
+          'progress-bar-first',
+          'progress-bar-second',
+          'progress-bar-third',
+          'progress-bar-fourth',
+          'progress-bar-fifth',
+          'progress-bar-sixth',
+          'progress-bar-seventh',
+          'progress-bar-eighth',
+          'progress-bar-ninth',
+          'progress-bar-tenth'
+        ];
+
+        ganttChart.forEach(segment => {
+          const segmentDiv = document.createElement('div');
+          segmentDiv.className = 'progress-bar';
+          segmentDiv.style.width = `${(segment.duration / totalTime) * 100}%`;
+
+          if (segment.process === 'Idle') {
+            segmentDiv.classList.add('progress-bar-idle');
+          } else if (/^P\d+$/.test(segment.process)) {
+            const index = parseInt(segment.process.slice(1)) - 1;
+            const colorClass = colorClasses[index % colorClasses.length];
+            segmentDiv.classList.add(colorClass);
+          } else {
+            segmentDiv.classList.add('progress-bar-idle'); // fallback
+          }
+
+          segmentDiv.textContent = segment.process;
+          progressBar.appendChild(segmentDiv);
+        });
+
+        for (let i = 0; i <= totalTime; i++) {
+          const rulerItem = document.createElement('li');
+          rulerItem.textContent = i;
+          ruler.appendChild(rulerItem);
+        }
+      }
+
+
+      // Display output table
+      function displayOutputTable() {
+        const tbody = document.getElementById('outputTableBody');
+        tbody.innerHTML = '';
+
+        results.processes.forEach(process => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+          <td>${process.name}</td>
+          <td>${process.arrivalTime}</td>
+          <td>${process.burstTime}</td>
+          <td>${process.completionTime}</td>
+          <td>${process.turnaroundTime}</td>
+          <td>${process.waitingTime}</td>
+          <td>${process.responseTime}</td>
+        `;
+          tbody.appendChild(row);
+        });
+      }
+
+      // Display statistics
+      function displayStatistics() {
+        const processes = results.processes;
+        const totalTime = results.totalTime;
+
+        const avgTurnaroundTime = processes.reduce((sum, p) => sum + p.turnaroundTime, 0) / processes.length;
+        const avgWaitingTime = processes.reduce((sum, p) => sum + p.waitingTime, 0) / processes.length;
+        const avgResponseTime = processes.reduce((sum, p) => sum + p.responseTime, 0) / processes.length;
+
+        const totalBurstTime = processes.reduce((sum, p) => sum + p.burstTime, 0);
+        const cpuUtilization = (totalBurstTime / totalTime) * 100;
+        const throughput = processes.length / totalTime;
+
+        document.getElementById('avgTurnaroundTime').textContent = avgTurnaroundTime.toFixed(2);
+        document.getElementById('avgWaitingTime').textContent = avgWaitingTime.toFixed(2);
+        document.getElementById('avgResponseTime').textContent = avgResponseTime.toFixed(2);
+        document.getElementById('cpuUtilization').textContent = cpuUtilization.toFixed(2) + '%';
+        document.getElementById('throughput').textContent = throughput.toFixed(2);
+      }
+
+      // Display charts
+      function displayCharts() {
+        const processes = results.processes;
+
+        // Destroy existing charts
+        Object.values(charts).forEach(chart => {
+          if (chart) chart.destroy();
+        });
+
+        // Turnaround Time Chart
+        const turnaroundCtx = document.getElementById('turnaroundChart').getContext('2d');
+        charts.turnaround = new Chart(turnaroundCtx, {
+          type: 'bar',
+          data: {
+            labels: processes.map(p => p.name),
+            datasets: [{
+              label: 'Turnaround Time',
+              data: processes.map(p => p.turnaroundTime),
+              backgroundColor: 'rgba(54, 162, 235, 0.6)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Time Units'
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                display: false
+              }
+            }
+          }
+        });
+
+        // Waiting Time Chart
+        const waitingCtx = document.getElementById('waitingChart').getContext('2d');
+        charts.waiting = new Chart(waitingCtx, {
+          type: 'bar',
+          data: {
+            labels: processes.map(p => p.name),
+            datasets: [{
+              label: 'Waiting Time',
+              data: processes.map(p => p.waitingTime),
+              backgroundColor: 'rgba(255, 99, 132, 0.6)',
+              borderColor: 'rgba(255, 99, 132, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Time Units'
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                display: false
+              }
+            }
+          }
+        });
+      }
+
+      // Toggle explanation
+      function toggleExplanation() {
+        const container = document.getElementById('explanationContainer');
+        const button = document.getElementById('explanationToggleBtn');
+
+        if (container.classList.contains('show')) {
+          container.classList.remove('show');
+          button.innerHTML = '<i class="fas fa-info-circle"></i> Show Step-by-Step Explanation';
+        } else {
+          container.classList.add('show');
+          button.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Step-by-Step Explanation';
+          generateExplanation();
+        }
+      }
+
+
+
+      // Generate explanation
+      function generateExplanation() {
+        const explanationContent = document.getElementById('explanationContent');
+        if (!results || !results.ganttChart) {
+          explanationContent.innerHTML = '<p style="color: red;">No results available. Please run the scheduler first.</p>';
+          return;
+        }
+
+        let explanation = '';
+
+        switch (currentAlgorithm) {
+          case 'fcfs':
+            explanation = generateFCFSExplanation();
+            break;
+          case 'sjf':
+            explanation = generateSJFExplanation();
+            break;
+          case 'srtf':
+            explanation = generateSRTFExplanation();
+            break;
+          case 'priority':
+            explanation = generatePriorityExplanation();
+            break;
+          case 'priority_preemptive':
+            explanation = generatePriorityPreemptiveExplanation();
+            break;
+          case 'rr':
+            explanation = generateRRExplanation();
+            break;
+          default:
+            explanation = '<p>Unknown algorithm selected.</p>';
+        }
+
+        explanationContent.innerHTML = explanation;
+      }
+
+
+      // Generate FCFS explanation
+      function generateFCFSExplanation() {
+        let explanation = '<h3>First Come First Served (FCFS) Algorithm Steps:</h3>';
+        explanation += '<ol>';
+        explanation += '<li>Sort processes by arrival time</li>';
+        explanation += '<li>Execute processes in order of arrival</li>';
+        explanation += '<li>Calculate completion, turnaround, and waiting times</li>';
+        explanation += '</ol>';
+
+        explanation += '<h4>Execution Timeline:</h4>';
+        explanation += '<div class="timeline">';
+
+        results.ganttChart.forEach((segment, index) => {
+          explanation += `<div class="timeline-item">
+          <strong>Time ${segment.start}-${segment.end}:</strong> ${segment.process}
+          ${segment.process !== 'Idle' ? `(Duration: ${segment.duration})` : '(CPU Idle)'}
+        </div>`;
+        });
+
+        explanation += '</div>';
+        return explanation;
+      }
+
+      // Generate SJF explanation
+      function generateSJFExplanation() {
+        let explanation = '<h3>Shortest Job First (SJF) Algorithm Steps:</h3>';
+        explanation += '<ol>';
+        explanation += '<li>At each decision point, select the process with shortest burst time</li>';
+        explanation += '<li>Execute the selected process to completion</li>';
+        explanation += '<li>Repeat until all processes are completed</li>';
+        explanation += '</ol>';
+
+        explanation += '<h4>Execution Timeline:</h4>';
+        explanation += '<div class="timeline">';
+
+        results.ganttChart.forEach((segment, index) => {
+          explanation += `<div class="timeline-item">
+          <strong>Time ${segment.start}-${segment.end}:</strong> ${segment.process}
+          ${segment.process !== 'Idle' ? `(Duration: ${segment.duration})` : '(CPU Idle)'}
+        </div>`;
+        });
+
+        explanation += '</div>';
+        return explanation;
+      }
+
+      // Generate SRTF explanation
+      function generateSRTFExplanation() {
+        let explanation = '<h3>Shortest Remaining Time First (SRTF) Algorithm Steps:</h3>';
+        explanation += '<ol>';
+        explanation += '<li>At each time unit, check for newly arrived processes</li>';
+        explanation += '<li>Select the process with shortest remaining time</li>';
+        explanation += '<li>Preempt current process if a shorter job arrives</li>';
+        explanation += '<li>Continue until all processes are completed</li>';
+        explanation += '</ol>';
+
+        explanation += '<h4>Execution Timeline:</h4>';
+        explanation += '<div class="timeline">';
+
+        results.ganttChart.forEach((segment, index) => {
+          explanation += `<div class="timeline-item">
+          <strong>Time ${segment.start}-${segment.end}:</strong> ${segment.process}
+          ${segment.process !== 'Idle' ? `(Duration: ${segment.duration})` : '(CPU Idle)'}
+        </div>`;
+        });
+
+        explanation += '</div>';
+        return explanation;
+      }
+
+      // Generate Priority explanation
+      function generatePriorityExplanation() {
+        let explanation = '<h3>Priority Scheduling Algorithm Steps:</h3>';
+        explanation += '<ol>';
+        explanation += '<li>At each decision point, select the process with highest priority (lowest number)</li>';
+        explanation += '<li>Execute the selected process to completion</li>';
+        explanation += '<li>Repeat until all processes are completed</li>';
+        explanation += '</ol>';
+
+        explanation += '<h4>Execution Timeline:</h4>';
+        explanation += '<div class="timeline">';
+
+        results.ganttChart.forEach((segment, index) => {
+          explanation += `<div class="timeline-item">
+          <strong>Time ${segment.start}-${segment.end}:</strong> ${segment.process}
+          ${segment.process !== 'Idle' ? `(Duration: ${segment.duration})` : '(CPU Idle)'}
+        </div>`;
+        });
+
+        explanation += '</div>';
+        return explanation;
+      }
+
+      // Generate Priority Preemptive explanation
+      function generatePriorityPreemptiveExplanation() {
+        let explanation = '<h3>Priority Preemptive Scheduling Algorithm Steps:</h3>';
+        explanation += '<ol>';
+        explanation += '<li>At each time unit, check for newly arrived processes</li>';
+        explanation += '<li>Select the process with highest priority (lowest number)</li>';
+        explanation += '<li>Preempt current process if a higher priority job arrives</li>';
+        explanation += '<li>Continue until all processes are completed</li>';
+        explanation += '</ol>';
+
+        explanation += '<h4>Execution Timeline:</h4>';
+        explanation += '<div class="timeline">';
+
+        results.ganttChart.forEach((segment, index) => {
+          explanation += `<div class="timeline-item">
+          <strong>Time ${segment.start}-${segment.end}:</strong> ${segment.process}
+          ${segment.process !== 'Idle' ? `(Duration: ${segment.duration})` : '(CPU Idle)'}
+        </div>`;
+        });
+
+        explanation += '</div>';
+        return explanation;
+      }
+
+      // Generate Round Robin explanation
+      function generateRRExplanation() {
+        const timeQuantum = parseInt(document.getElementById('timeQuantum').value) || 2;
+        let explanation = '<h3>Round Robin (RR) Algorithm Steps:</h3>';
+        explanation += '<ol>';
+        explanation += `<li>Set time quantum to ${timeQuantum} units</li>`;
+        explanation += '<li>Execute each process for at most one time quantum</li>';
+        explanation += '<li>If process completes within quantum, move to next process</li>';
+        explanation += '<li>If process doesn\'t complete, add to end of ready queue</li>';
+        explanation += '<li>Continue until all processes are completed</li>';
+        explanation += '</ol>';
+
+        explanation += '<h4>Execution Timeline:</h4>';
+        explanation += '<div class="timeline">';
+
+        results.ganttChart.forEach((segment, index) => {
+          explanation += `<div class="timeline-item">
+          <strong>Time ${segment.start}-${segment.end}:</strong> ${segment.process}
+          ${segment.process !== 'Idle' ? `(Duration: ${segment.duration})` : '(CPU Idle)'}
+        </div>`;
+        });
+
+        explanation += '</div>';
+        return explanation;
+      }
+
+      // Reset scheduler
+      function resetScheduler() {
+        // Reset form values
+        document.getElementById('processCount').value = 3;
+        processCount = 3;
+
+        // Reset process inputs
+        for (let i = 1; i <= 10; i++) {
+          document.getElementById(`arrive_${i}`).value = 0;
+          document.getElementById(`burst_${i}`).value = 1;
+          document.getElementById(`priority_${i}`).value = i;
+        }
+
+        // Reset algorithm selection
+        currentAlgorithm = '';
+        document.querySelector('.dropdown-toggle span').textContent = 'Select Algorithm';
+        document.getElementById('algorithmExplanation').innerHTML = '<p>Select a scheduling algorithm to see its explanation and configure parameters.</p>';
+
+        // Reset time quantum
+        document.getElementById('timeQuantum').value = 2;
+        document.getElementById('contextSwitch').value = 0;
+
+        // Hide results sections
+        document.getElementById('progressContainer').classList.add('hidden');
+        document.getElementById('ruler').classList.add('hidden');
+        document.getElementById('outputSection').classList.add('hidden');
+        document.getElementById('statisticsSection').classList.add('hidden');
+        document.getElementById('dataVisualization').classList.add('hidden');
+        document.getElementById('explanationSection').classList.add('hidden');
+        document.getElementById('explanationContainer').classList.add('hidden');
+
+        // Reset process table
+        updateProcessTable();
+
+        // Hide priority column and time quantum group
+        document.querySelectorAll('.priority').forEach(cell => cell.classList.remove('in'));
+        document.getElementById('timeQuantumGroup').style.display = 'none';
+
+        // Destroy charts
+        Object.values(charts).forEach(chart => {
+          if (chart) chart.destroy();
+        });
+        charts = {};
+
+        // Reset global variables
+        processes = [];
+        results = [];
+      }
+
+      // Initialize the application
+      document.addEventListener('DOMContentLoaded', function () {
+        updateProcessTable();
+
+        // Add some sample data for demonstration
+        document.getElementById('arrive_1').value = 0;
+        document.getElementById('burst_1').value = 4;
+        document.getElementById('priority_1').value = 2;
+
+        document.getElementById('arrive_2').value = 1;
+        document.getElementById('burst_2').value = 3;
+        document.getElementById('priority_2').value = 1;
+
+        document.getElementById('arrive_3').value = 2;
+        document.getElementById('burst_3').value = 1;
+        document.getElementById('priority_3').value = 3;
+      });
+
+      // Add keyboard shortcuts
+      document.addEventListener('keydown', function (event) {
+        if (event.ctrlKey && event.key === 'Enter') {
+          runScheduler();
+        }
+        if (event.ctrlKey && event.key === 'r') {
+          event.preventDefault();
+          resetScheduler();
+        }
+      });
+
+      // Add input validation
+      document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('input', function () {
+          if (this.value < 0) this.value = 0;
+          if (this.id.includes('burst') && this.value < 1) this.value = 1;
+          if (this.id === 'processCount' && this.value > 10) this.value = 10;
+          if (this.id === 'processCount' && this.value < 1) this.value = 1;
+        });
+      });
+
+      // Add tooltips for better UX
+      const tooltips = {
+        'processCount': 'Number of processes to schedule (1-10)',
+        'timeQuantum': 'Time slice for Round Robin algorithm',
+        'contextSwitch': 'Time overhead for context switching',
+        'algorithmSelect': 'Choose the CPU scheduling algorithm to simulate'
+      };
+
+      Object.entries(tooltips).forEach(([id, text]) => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.title = text;
+        }
+      });
+
+      // Add smooth scrolling to results
+      function scrollToResults() {
+        const outputSection = document.getElementById('outputSection');
+        if (outputSection && !outputSection.classList.contains('hidden')) {
+          outputSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+
+      // Modified run scheduler to include smooth scrolling
+      const originalRunScheduler = runScheduler;
+      runScheduler = function () {
+        originalRunScheduler();
+        setTimeout(scrollToResults, 100);
+      };
+
+      // Add export functionality
+      function exportResults() {
+        if (!results.processes || results.processes.length === 0) {
+          alert('No results to export. Please run the scheduler first.');
+          return;
+        }
+
+        let csv = 'Process,Arrival Time,Burst Time,Completion Time,Turnaround Time,Waiting Time,Response Time\n';
+        results.processes.forEach(process => {
+          csv += `${process.name},${process.arrivalTime},${process.burstTime},${process.completionTime},${process.turnaroundTime},${process.waitingTime},${process.responseTime}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cpu_scheduler_results_${currentAlgorithm}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }
+
+      // Add export button to the UI (you can add this to the HTML if needed)
+      function addExportButton() {
+        const runSection = document.querySelector('.run-section');
+        if (runSection && !document.getElementById('exportButton')) {
+          const exportButton = document.createElement('button');
+          exportButton.id = 'exportButton';
+          exportButton.className = 'run-button export';
+          exportButton.innerHTML = '<i class="fas fa-download"></i> Export Results';
+          exportButton.onclick = exportResults;
+          runSection.appendChild(exportButton);
+        }
+      }
+
+      // Call addExportButton when DOM is loaded
+      document.addEventListener('DOMContentLoaded', addExportButton);
+
+    </script>
+
+    <style>
+      /* Additional styles for better visualization */
+      .timeline {
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+      }
+
+      .explanation-container {
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: none;
+      }
+
+      .explanation-container.hidden {
+        display: none !important;
+      }
+
+      .explanation-container.show {
+        display: block !important;
+      }
+
+      .explanation-button {
+        background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 10px 0;
+      }
+
+      .explanation-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .run-button.export {
+        background: linear-gradient(45deg, #28a745 0%, #20c997 100%);
+      }
+
+      .run-button.export:hover {
+        background: linear-gradient(45deg, #218838 0%, #1ea080 100%);
+      }
+
+      /* Progress bar colors for different processes */
+      .progress-bar-p1 {
+        background: #ff6b6b;
+      }
+
+      .progress-bar-p2 {
+        background: #4ecdc4;
+      }
+
+      .progress-bar-p3 {
+        background: #45b7d1;
+      }
+
+      .progress-bar-p4 {
+        background: #f9ca24;
+      }
+
+      .progress-bar-p5 {
+        background: #6c5ce7;
+      }
+
+      .progress-bar-p6 {
+        background: #a29bfe;
+      }
+
+      .progress-bar-p7 {
+        background: #fd79a8;
+      }
+
+      .progress-bar-p8 {
+        background: #fdcb6e;
+      }
+
+      .progress-bar-p9 {
+        background: #6c5ce7;
+      }
+
+      .progress-bar-p10 {
+        background: #00b894;
+      }
+
+      .progress-bar-idle {
+        background: #ddd;
+        color: #666;
+      }
+
+      /* Responsive improvements */
+      @media (max-width: 768px) {
+        .charts-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .controls-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .statistics {
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+      }
+
+      /* Animation for results appearing */
+      .output-section,
+      .statistics,
+      .data-visualization {
+        animation: fadeInUp 0.5s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Tooltip styles */
+      [title] {
+        cursor: help;
+      }
+    </style>
+</body>
+
+</html>

@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="images\favicon\cpufavicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="images\favicon\cpufavicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+        integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+    <title>scheDulify</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #111111;
+            --card-bg: #1a1a1a;
+            --accent-bg: #2a2a2a;
+            --primary-text: #ffffff;
+            --secondary-text: #b0b0b0;
+            --accent-text: #888888;
+            --primary-accent: #3b82f6;
+            --secondary-accent: #6366f1;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --border-color: #333333;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--primary-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--secondary-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-accent);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-accent);
+        }
+
+        /* Header Section */
+        .header {
+            min-height: 100vh;
+            width: 100%;
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.9), rgba(59, 130, 246, 0.1)), url('images/CPU Scheduling_8.png');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 4%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(10, 10, 10, 0.98);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        nav a {
+            font-size: 1.8rem;
+            color: var(--primary-text);
+            text-decoration: none;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(45deg, var(--primary-accent), var(--secondary-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links ul li a {
+            color: var(--secondary-text);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links ul li a:hover {
+            color: var(--primary-text);
+            background: var(--glass-bg);
+            transform: translateY(-2px);
+            -webkit-text-fill-color: var(--primary-text);
+            background-clip: unset;
+            -webkit-background-clip: unset;
+        }
+
+        .nav-links ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, var(--primary-accent), var(--secondary-accent));
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-links ul li a:hover::after {
+            width: 80%;
+        }
+
+        .mobile-menu {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--primary-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .text-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            max-width: 800px;
+            padding: 0 2rem;
+        }
+
+        .text-box h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-text), var(--primary-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .text-box p {
+            font-size: 1.2rem;
+            color: var(--secondary-text);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .hero-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+            color: var(--primary-text);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        .hero-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .hero-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .hero-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Course Section */
+        .course {
+            padding: 8rem 4% 6rem;
+            background: var(--secondary-bg);
+            position: relative;
+        }
+
+        .course::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+        }
+
+        .course h1 {
+            text-align: center;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 4rem;
+            background: linear-gradient(135deg, var(--primary-text), var(--primary-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .course-colomn {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-colomn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-accent), var(--secondary-accent));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .course-colomn:hover::before {
+            transform: scaleX(1);
+        }
+
+        .course-colomn:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            background: var(--card-bg);
+        }
+
+        .course-colomn h3 {
+            color: var(--primary-text);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .course-colomn hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-accent), transparent);
+            margin-bottom: 1.5rem;
+        }
+
+        .course-colomn p {
+            color: var(--secondary-text);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            text-align: left;
+        }
+
+        /* Blog Section */
+        #blog {
+            padding: 8rem 4% 6rem;
+            background: var(--primary-bg);
+        }
+
+        .blog-heading {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .blog-heading h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-text), var(--primary-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .blog-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+        }
+
+        .blog-box {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .blog-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary-accent);
+        }
+
+        .blog-img {
+            position: relative;
+            overflow: hidden;
+            height: 200px;
+        }
+
+        .blog-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .blog-box:hover .blog-img img {
+            transform: scale(1.1);
+        }
+
+        .blog-text {
+            padding: 2rem;
+        }
+
+        .blog-text .blog-title {
+            color: var(--primary-text);
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .blog-text .blog-title:hover {
+            color: var(--primary-accent);
+        }
+
+        .blog-text p {
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .blog-text a#more {
+            color: var(--primary-accent);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .blog-text a#more:hover {
+            color: var(--secondary-accent);
+        }
+
+        /* CTA Section */
+        .cta {
+            margin: 6rem 4%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1)), url('./images/banner2.JPG');
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            padding: 6rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .cta h1 {
+            position: relative;
+            z-index: 2;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: var(--primary-text);
+            margin-bottom: 2rem;
+            line-height: 1.3;
+        }
+
+        .cta .hero-btn {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--secondary-bg);
+            padding: 3rem 4% 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer p {
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+            margin: 0.5rem 0;
+        }
+
+        .footer i {
+            color: var(--danger-color);
+            margin: 0 0.5rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Navbar base styles already exist — only adding fixes */
+
+        .close-icon {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: none;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            z-index: 1001;
+        }
+
+        /* When nav is active (mobile menu open) */
+        .nav-links.active .close-icon {
+            display: block;
+        }
+
+        /* Hide hamburger when sidebar opens */
+        .nav-links.active~#hamburger {
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 4%;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 100%;
+                height: 100vh;
+                background: rgba(10, 10, 10, 0.95);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: right 0.3s ease;
+                z-index: 1000;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links ul {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .close-icon {
+                display: block;
+            }
+
+            .nav-links ul li a {
+                font-size: 1.2rem;
+                padding: 1rem 2rem;
+            }
+
+            .mobile-menu {
+                display: block;
+                z-index: 1001;
+            }
+
+            .nav-links .fas {
+                position: absolute;
+                top: 2rem;
+                right: 2rem;
+                font-size: 1.5rem;
+                color: var(--primary-text);
+                cursor: pointer;
+            }
+
+            .course {
+                padding: 6rem 4% 4rem;
+            }
+
+            .row {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .course-colomn {
+                padding: 2rem 1.5rem;
+            }
+
+            #blog {
+                padding: 6rem 4% 4rem;
+            }
+
+            .blog-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .cta {
+                margin: 4rem 4%;
+                padding: 4rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .text-box {
+                padding: 0 1rem;
+            }
+
+            .hero-btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .course-colomn {
+                padding: 1.5rem 1rem;
+            }
+
+            .blog-text {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section class="header">
+        <nav id="navbar">
+            <a href="index.html" class="logo">scheDulify</a>
+
+            <div class="nav-links" id="navLinks">
+                <i class="fas fa-times close-icon" onclick="hideMenu()"></i>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="docs.html">Document</a></li>
+                    <li><a href="backend/ganttcharts.html">Simulator</a></li>
+
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <button class="mobile-menu" id="hamburger" onclick="showMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+
+        </nav>
+
+
+        <div class="text-box">
+            <h1>CPU Scheduling Simulator</h1>
+            <p>
+                Dive into interactive simulations to master CPU Scheduling Algorithms,
+                making complex concepts simple and engaging. Start your simulation now!
+            </p>
+            <a href="backend\ganttcharts.html" class="hero-btn">
+                Start Simulation
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </section>
+
+    <section class="course">
+        <h1>Need of Algorithm</h1>
+
+        <div class="row" data-aos="zoom-in-up">
+            <div class="course-colomn">
+                <h3>CPU Utilization</h3>
+                <hr>
+                <p>CPU scheduling is a core function of an operating system that optimizes how processes use the CPU
+                    to enhance system performance. When multiple processes are running, the CPU scheduler selects which
+                    process should execute next, especially when another is waiting for resources like I/O.
+                    By alternating between processes in this way, the CPU remains busy, minimizing idle time and
+                    maximizing utilization.</p>
+            </div>
+            <div class="course-colomn">
+                <h3>Maximum Performance</h3>
+                <hr>
+                <p>To maximize CPU efficiency and minimize idle time, the CPU should ideally be active as much as
+                    possible, aiming for near-continuous operation. In real systems, however, CPU usage varies based
+                    on workload, typically ranging from 40% during light loads to around 90% under heavy loads.
+                    This ensures a balance between performance and resource availability, allowing the system to
+                    handle varying demands effectively.</p>
+            </div>
+            <div class="course-colomn">
+                <h3>Time Minimization</h3>
+                <hr>
+                <p>Various CPU scheduling algorithms are designed to optimize different performance metrics,
+                    such as minimizing waiting time, response time, and turnaround time. For example, turnaround time
+                    is reduced when processes complete their CPU bursts within a single time quantum, as in
+                    Round Robin scheduling. Each algorithm addresses specific needs, allowing systems to handle
+                    diverse workloads more efficiently by selecting the best-fit scheduling method.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="blog">
+        <div class="blog-heading">
+            <h1>Popular Blogs</h1>
+        </div>
+
+        <div class="blog-container" data-aos="zoom-in-up">
+            <div class="blog-box">
+                <div class="blog-img">
+                    <img src="./images/CPU Scheduling_2.png" alt="Blog">
+                </div>
+                <div class="blog-text">
+                    <a href="https://www.fusion-reactor.com/blog/multithreading-and-multiprocessing/#:~:text=A%20multiprocessing%20system%20has%20more,runs%20parallel%20to%20each%20other."
+                        class="blog-title">Multithreading vs Multiprocessing</a>
+                    <p>In Multiprocessing, many processes are executed simultaneously. While in multithreading, many
+                        threads of...</p>
+                    <a href="https://www.fusion-reactor.com/blog/multithreading-and-multiprocessing/#:~:text=A%20multiprocessing%20system%20has%20more,runs%20parallel%20to%20each%20other."
+                        id="more">Read More...</a>
+                </div>
+            </div>
+
+            <div class="blog-box">
+                <div class="blog-img">
+                    <img src="./images/CPU Scheduling_3.png" alt="Blog">
+                </div>
+                <div class="blog-text">
+                    <a href="https://www.eletimes.com/microprocessor-vs-microcontroller-what-is-the-difference#:~:text=Ultimately%2C%20microcontrollers%20and%20microprocessors%20are,that%20connects%20to%20external%20peripherals."
+                        class="blog-title">Microcontroller vs Microprocessor</a>
+                    <p>Microcontrollers and Microprocessors are different ways of organizing and optimizing a...</p>
+                    <a href="https://www.eletimes.com/microprocessor-vs-microcontroller-what-is-the-difference#:~:text=Ultimately%2C%20microcontrollers%20and%20microprocessors%20are,that%20connects%20to%20external%20peripherals."
+                        id="more">Read More...</a>
+                </div>
+            </div>
+
+            <div class="blog-box">
+                <div class="blog-img">
+                    <img src="./images/CPU Scheduling_1.PNG" alt="Blog">
+                </div>
+                <div class="blog-text">
+                    <a href="https://www.crucial.in/articles/about-memory/what-is-the-difference-between-ram-and-rom#:~:text=RAM%20is%20volatile%20memory%20that,Find%20out%20more%20about%20RAM."
+                        class="blog-title">Difference between RAM and ROM</a>
+                    <p>RAM is a volatile memory that temporarily stores the files you are working on. ROM is
+                        non-volatile... </p>
+                    <a href="https://www.crucial.in/articles/about-memory/what-is-the-difference-between-ram-and-rom#:~:text=RAM%20is%20volatile%20memory%20that,Find%20out%20more%20about%20RAM."
+                        id="more">Read More...</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="blog-container" data-aos="zoom-in-up">
+            <div class="blog-box">
+                <div class="blog-img">
+                    <img src="./images/CPU Scheduling_5.png" alt="Blog">
+                </div>
+                <div class="blog-text">
+                    <a href="https://www.tutorialspoint.com/semaphores-in-operating-system" class="blog-title">What is
+                        Semaphore?</a>
+                    <p>A semaphore is a variable or abstract data type used to control access to a common resource by...
+                    </p>
+                    <a href="https://www.tutorialspoint.com/semaphores-in-operating-system" id="more">Read More...</a>
+                </div>
+            </div>
+
+            <div class="blog-box">
+                <div class="blog-img">
+                    <img src="./images/CPU Scheduling_6.png" alt="Blog">
+                </div>
+                <div class="blog-text">
+                    <a href="https://www.geeksforgeeks.org/introduction-of-deadlock-in-operating-system/"
+                        class="blog-title">What is Deadlock?</a>
+                    <p>A deadlock is a condition that may happen in a system composed of multiple processes that can
+                        access...</p>
+                    <a href="https://www.geeksforgeeks.org/introduction-of-deadlock-in-operating-system/" id="more">Read
+                        More...</a>
+                </div>
+            </div>
+
+            <div class="blog-box">
+                <div class="blog-img">
+                    <img src="./images/CPU Scheduling_7.PNG" alt="Blog">
+                </div>
+                <div class="blog-text">
+                    <a href="https://www.techopedia.com/definition/1115/storage#:~:text=Storage%20is%20a%20process%20through,data%2C%20either%20temporarily%20or%20permanently."
+                        class="blog-title">What is Storage ?</a>
+                    <p>Storage is a process through which digital data is saved within a data storage device by means
+                        of...</p>
+                    <a href="https://www.techopedia.com/definition/1115/storage#:~:text=Storage%20is%20a%20process%20through,data%2C%20either%20temporarily%20or%20permanently."
+                        id="more">Read More...</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta" data-aos="zoom-in-up">
+        <h1>Learn about all types Algorithms<br> Click Below!</h1>
+        <a href="./docs.html" class="hero-btn">
+            Click Here
+            <i class="fas fa-external-link-alt"></i>
+        </a>
+    </section>
+
+    <section class="footer">
+        <p>Made With<i class="far fa-heart"></i>by Kashish Seth & Garima Gupta</p>
+        <p> <i class="fa fa-copyright"></i>Copyright 2025 | All rights reserved</p>
+    </section>
+
+    <script>
+        // Navigation functionality
+        const navLinks = document.getElementById("navLinks");
+        const hamburger = document.getElementById("hamburger");
+
+        function showMenu() {
+            navLinks.classList.add('active');
+            hamburger.style.display = 'none';
+        }
+
+        function hideMenu() {
+            navLinks.classList.remove('active');
+            hamburger.style.display = 'block';
+        }
+
+
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function () {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', hideMenu);
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!navLinks.contains(e.target) && !e.target.closest('.mobile-menu')) {
+                hideMenu();
+            }
+        });
+    </script>
+
+    <!-- AOS Animation -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            offset: 100,
+            duration: 800,
+            easing: 'ease-out-cubic'
+        });
+    </script>
+</body>
+
+</html>

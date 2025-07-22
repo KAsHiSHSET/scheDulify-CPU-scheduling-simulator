@@ -1,0 +1,79 @@
+.container_docs {
+  /* border: 2px solid black; */
+  height: auto;
+  padding-top: 50px;
+  padding-bottom: 30px;
+  text-align: center;
+  background-color: #E1E7E7;
+  border-radius: 20px;
+  width: 80%;
+  margin: 50px auto 10px auto;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.5s ease-in-out;
+}
+
+.container_docs:hover {
+  /* Hover effect for the container */
+  box-shadow: 0 0 20px rgba(13, 14, 13, 0.6);
+}
+
+.container_docs h1 {
+  font-size: 40px;
+  margin-top: 10px;
+  font-weight: 700;
+  color: #313552;
+  text-align: center;
+}
+
+.container_docs p {
+  margin: 15px 5px 12px 5px;
+  text-align: left;
+  font-size: 1.3rem;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container_docs li {
+  text-align: left;
+  line-height: 1.5;
+  margin-left: 20px;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.special li {
+  line-height: 1.8;
+  padding-top: 15px;
+  color: #444;
+  font-weight: 500;
+}
+
+.container_docs blod {
+  font-weight: 900;
+  color: #313552;
+}
+
+.step {
+  color: #FD5D5D;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+
+#explanation {
+  padding: 15px 25px;
+  background-color: #FD5D5D;
+  color: #fff;
+  border: none;
+  border-radius: 15px;
+  margin: 25px auto 0;
+  display: inline-block;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#explanation:hover {
+  /* Hover effect for explanation button */
+  background-color: #e04848;
+}
