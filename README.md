@@ -20,7 +20,7 @@
 **ScheDulify** is an educational and interactive tool built to simulate different **CPU scheduling algorithms** in Operating Systems. Designed with clean visuals and user inputs, it helps understand how each scheduling algorithm behaves and how processes are prioritized and executed on the CPU.
 
 
-#### DEPLOYED LINK- [scheDuler](https://sche-dulify-cpu-scheduling-simulato.vercel.app/)
+#### DEPLOYED LINK- [scheDulify](https://sche-dulify-cpu-scheduling-simulato.vercel.app/)
 
 
 ---
