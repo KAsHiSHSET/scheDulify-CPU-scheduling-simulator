@@ -1,4 +1,4 @@
-<h1 align="center">🧠 ScheDulify – Process Scheduler</h1>
+<h1 align="center">🧠scheDulify – From Queues to Gantt Charts, Seamlessly !!</h1>
 
 <p align="center">
   <img src="backend/images/kashishpic.png" width="120" />
@@ -25,10 +25,11 @@
 - 🎯 Select and simulate different scheduling algorithms
 - 📥 Add custom processes with burst time, arrival time, etc.
 - 📊 Visualize Gantt charts for process execution
-- 🔁 Algorithms supported: FCFS, SJF, Priority, Round Robin
+- 🔁 Algorithms supported: FCFS, SJF, SRTF, Priority Scheduling ,Priority preemptive ,Round Robin
 - 🧪 Preemptive and Non-Preemptive options
 - ⚡ Real-time calculation of waiting & turnaround times
 - 🖥️ Clean and responsive frontend interface
+- Blogs on various OS related topics.
 
 ---
 
@@ -36,7 +37,8 @@
 
 <table>
   <tr>
-    <td><img src="backend/images/CPU Scheduling_1.PNG" width="300"/></td>
+    <td><img src="<img width="1896" height="856" alt="image" src="https://github.com/user-attachments/assets/b5e9687f-61a6-4f67-b2cc-2d64265adbad" />
+" width="300"/></td>
     <td><img src="backend/images/CPU Scheduling_2.PNG" width="300"/></td>
   </tr>
   <tr>
@@ -69,6 +71,6 @@
 ## 🛠 How to Run Locally
 
 ```bash
-git clone https://github.com/yourusername/scheDulify.git
+git clone https://github.com/KAsHiSHSET/scheDulify.git
 cd scheDulify/backend
-open ganttcharts.html in browser
+right click the index.html, select the option " Open with Live Server "
