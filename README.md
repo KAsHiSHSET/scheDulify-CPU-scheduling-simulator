@@ -104,7 +104,11 @@ right click the index.html, select the option " Open with Live Server "
 ```
 
 ---
-## 🚀 Collaborators
+## 🚀MEET the Collaborators
+<img width="1808" height="784" alt="image" src="https://github.com/user-attachments/assets/d5d08aaf-a9a7-4259-a69b-4ca2fa5d2f4f" />
+
+
+
   Feel free to reach out the developers
 
   
@@ -123,4 +127,4 @@ right click the index.html, select the option " Open with Live Server "
 
 
 
-<img width="1808" height="784" alt="image" src="https://github.com/user-attachments/assets/d5d08aaf-a9a7-4259-a69b-4ca2fa5d2f4f" />
+
